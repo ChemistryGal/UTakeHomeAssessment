@@ -1,0 +1,110 @@
+USE EMSRecords;
+GO
+
+TRUNCATE TABLE dbo.Stg_EMS_Runs;
+GO
+
+INSERT INTO dbo.Stg_EMS_Runs (
+    row_hash,
+    incident_dt,
+    unit_notified_by_dispatch_dt,
+    unit_arrived_on_scene_dt,
+    unit_arrived_to_patient_dt,
+    unit_left_scene_dt,
+    patient_arrived_destination_dt,
+    incident_county,
+    chief_complaint_dispatch,
+    chief_complaint_anatomic_loc,
+    primary_symptom,
+    provider_impression_primary,
+    disposition_ed,
+    disposition_hospital,
+    destination_type,
+    provider_type_structure,
+    provider_type_service,
+    provider_type_service_level,
+    injury_flg,
+    naloxone_given_flg,
+    medication_given_other_flg,
+    provider_to_scene_mins,
+    provider_to_destination_mins
+)
+SELECT
+    HASHBYTES(
+        'SHA2_256',
+        CONCAT_WS('|',
+            NULLIF(LTRIM(RTRIM(r.INCIDENT_DT)), ''),
+            NULLIF(LTRIM(RTRIM(r.INCIDENT_COUNTY)), ''),
+            NULLIF(LTRIM(RTRIM(r.CHIEF_COMPLAINT_DISPATCH)), ''),
+            NULLIF(LTRIM(RTRIM(r.CHIEF_COMPLAINT_ANATOMIC_LOC)), ''),
+            NULLIF(LTRIM(RTRIM(r.PRIMARY_SYMPTOM)), ''),
+            NULLIF(LTRIM(RTRIM(r.PROVIDER_IMPRESSION_PRIMARY)), ''),
+            NULLIF(LTRIM(RTRIM(r.DISPOSITION_ED)), ''),
+            NULLIF(LTRIM(RTRIM(r.DISPOSITION_HOSPITAL)), ''),
+            NULLIF(LTRIM(RTRIM(r.DESTINATION_TYPE)), ''),
+            NULLIF(LTRIM(RTRIM(r.PROVIDER_TYPE_STRUCTURE)), ''),
+            NULLIF(LTRIM(RTRIM(r.PROVIDER_TYPE_SERVICE)), ''),
+            NULLIF(LTRIM(RTRIM(r.PROVIDER_TYPE_SERVICE_LEVEL)), ''),
+            NULLIF(LTRIM(RTRIM(r.PROVIDER_TO_SCENE_MINS)), ''),
+            NULLIF(LTRIM(RTRIM(r.PROVIDER_TO_DESTINATION_MINS)), ''),
+            NULLIF(LTRIM(RTRIM(r.UNIT_NOTIFIED_BY_DISPATCH_DT)), ''),
+            NULLIF(LTRIM(RTRIM(r.UNIT_ARRIVED_ON_SCENE_DT)), ''),
+            NULLIF(LTRIM(RTRIM(r.UNIT_ARRIVED_TO_PATIENT_DT)), ''),
+            NULLIF(LTRIM(RTRIM(r.UNIT_LEFT_SCENE_DT)), ''),
+            NULLIF(LTRIM(RTRIM(r.PATIENT_ARRIVED_DESTINATION_DT)), '')
+        )
+    ) AS row_hash,
+
+    TRY_CONVERT(DATETIME2(0), NULLIF(LTRIM(RTRIM(r.INCIDENT_DT)), '')),
+
+    TRY_CONVERT(DATETIME2(0), NULLIF(LTRIM(RTRIM(r.UNIT_NOTIFIED_BY_DISPATCH_DT)), '')),
+    TRY_CONVERT(DATETIME2(0), NULLIF(LTRIM(RTRIM(r.UNIT_ARRIVED_ON_SCENE_DT)), '')),
+    TRY_CONVERT(DATETIME2(0), NULLIF(LTRIM(RTRIM(r.UNIT_ARRIVED_TO_PATIENT_DT)), '')),
+    TRY_CONVERT(DATETIME2(0), NULLIF(LTRIM(RTRIM(r.UNIT_LEFT_SCENE_DT)), '')),
+    TRY_CONVERT(DATETIME2(0), NULLIF(LTRIM(RTRIM(r.PATIENT_ARRIVED_DESTINATION_DT)), '')),
+
+    NULLIF(LTRIM(RTRIM(r.INCIDENT_COUNTY)), ''),
+    NULLIF(LTRIM(RTRIM(r.CHIEF_COMPLAINT_DISPATCH)), ''),
+    NULLIF(LTRIM(RTRIM(r.CHIEF_COMPLAINT_ANATOMIC_LOC)), ''),
+    NULLIF(LTRIM(RTRIM(r.PRIMARY_SYMPTOM)), ''),
+    NULLIF(LTRIM(RTRIM(r.PROVIDER_IMPRESSION_PRIMARY)), ''),
+    NULLIF(LTRIM(RTRIM(r.DISPOSITION_ED)), ''),
+    NULLIF(LTRIM(RTRIM(r.DISPOSITION_HOSPITAL)), ''),
+    NULLIF(LTRIM(RTRIM(r.DESTINATION_TYPE)), ''),
+
+    NULLIF(LTRIM(RTRIM(r.PROVIDER_TYPE_STRUCTURE)), ''),
+    NULLIF(LTRIM(RTRIM(r.PROVIDER_TYPE_SERVICE)), ''),
+    NULLIF(LTRIM(RTRIM(r.PROVIDER_TYPE_SERVICE_LEVEL)), ''),
+
+    CASE
+        WHEN NULLIF(LTRIM(RTRIM(r.INJURY_FLG)), '') IS NULL THEN NULL
+        WHEN UPPER(LTRIM(RTRIM(r.INJURY_FLG))) IN ('1','Y','YES','TRUE','T') THEN 1
+        WHEN UPPER(LTRIM(RTRIM(r.INJURY_FLG))) IN ('0','N','NO','FALSE','F') THEN 0
+        ELSE NULL
+    END,
+
+    CASE
+        WHEN NULLIF(LTRIM(RTRIM(r.NALOXONE_GIVEN_FLG)), '') IS NULL THEN NULL
+        WHEN UPPER(LTRIM(RTRIM(r.NALOXONE_GIVEN_FLG))) IN ('1','Y','YES','TRUE','T') THEN 1
+        WHEN UPPER(LTRIM(RTRIM(r.NALOXONE_GIVEN_FLG))) IN ('0','N','NO','FALSE','F') THEN 0
+        ELSE NULL
+    END,
+
+    CASE
+        WHEN NULLIF(LTRIM(RTRIM(r.MEDICATION_GIVEN_OTHER_FLG)), '') IS NULL THEN NULL
+        WHEN UPPER(LTRIM(RTRIM(r.MEDICATION_GIVEN_OTHER_FLG))) IN ('1','Y','YES','TRUE','T') THEN 1
+        WHEN UPPER(LTRIM(RTRIM(r.MEDICATION_GIVEN_OTHER_FLG))) IN ('0','N','NO','FALSE','F') THEN 0
+        ELSE NULL
+    END,
+
+    CASE
+        WHEN TRY_CONVERT(DECIMAL(10,2), NULLIF(LTRIM(RTRIM(r.PROVIDER_TO_SCENE_MINS)), '')) < 0 THEN NULL
+        ELSE TRY_CONVERT(DECIMAL(10,2), NULLIF(LTRIM(RTRIM(r.PROVIDER_TO_SCENE_MINS)), ''))
+    END,
+
+    CASE
+        WHEN TRY_CONVERT(DECIMAL(10,2), NULLIF(LTRIM(RTRIM(r.PROVIDER_TO_DESTINATION_MINS)), '')) < 0 THEN NULL
+        ELSE TRY_CONVERT(DECIMAL(10,2), NULLIF(LTRIM(RTRIM(r.PROVIDER_TO_DESTINATION_MINS)), ''))
+    END
+FROM dbo.Raw_EMS_Runs r;
+GO
