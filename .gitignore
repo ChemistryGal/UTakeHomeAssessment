@@ -1,5 +1,5 @@
 # Ignore large data files
-data/*.csv
+ems_runs_2024.csv
 *.csv
 
 # Optional: python junk
