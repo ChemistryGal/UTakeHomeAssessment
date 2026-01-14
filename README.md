@@ -2,7 +2,7 @@ Subject: README.md for EMS Take-Home Repository
 
 # EMS Records – Mini ETL + Star Schema (Take-Home)
 
-This repo contains a simple, reproducible ETL pipeline that loads an EMS CSV into SQL Server, cleans it into a typed staging table, and loads a small star schema (dimensions + fact). The goal is to keep the implementation **easy to understand**, **set-based**, and **repeatable**.
+This repo contains a simple and easily reproducible ETL pipeline that loads an EMS CSV into SQL Server, cleans it into a typed staging table, and loads a small star schema (dimensions + fact). The goal is to keep the implementation **easy to understand**, **set-based**, and **repeatable**.
 
 ---
 
@@ -56,18 +56,7 @@ This repo contains a simple, reproducible ETL pipeline that loads an EMS CSV int
 ---
 
 ## Setup
-
-### 1) Install prerequisites
-
-* Install **SQL Server Express** and ensure `localhost\SQLEXPRESS` is accessible.
-* Install **ODBC Driver 17 for SQL Server**.
-* Install Python dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2) Configure `config.ini`
+Configure `config.ini`
 
 Update values as needed:
 
@@ -84,15 +73,9 @@ batch_size = 50000
 delimiter = ,
 encoding = utf-8
 ```
-
-> Place the CSV at the path specified by `csv_path` (default: `data/ems.csv`).
-
 ---
 
 ## How to Run
-
-### Option A (recommended): Run the whole pipeline
-
 This runs:
 
 1. Bronze SQL (database/schema/raw table)
@@ -102,43 +85,6 @@ This runs:
 ```bash
 python run_etl.py
 ```
----
-
-## Pipeline Overview
-
-### Bronze (Raw landing)
-
-* **`er.Raw_EMS_Runs`** stores source CSV columns as strings (NVARCHAR).
-* This avoids load failures due to unexpected data formats.
-
-### Silver (Cleansed staging + star schema)
-
-* **`er.Stg_EMS_Runs`** is a typed, cleaned version of raw using set-based SQL:
-
-  * trimming (`LTRIM/RTRIM`)
-  * blank-to-null (`NULLIF`)
-  * type conversion (`TRY_CONVERT`)
-  * boolean normalization to BIT
-* `row_hash` (SHA2-256) is calculated to support de-duplication and idempotent loads.
-
-### Dimensions then Fact
-
-* Dimensions are loaded first using `INSERT … SELECT DISTINCT … WHERE NOT EXISTS`.
-* Fact rows are loaded by joining staging to dimensions to resolve surrogate keys.
-* Unknown/default members use **key 0** to maintain referential integrity.
-
----
-
-## Large Data / Best Practice Notes
-
-This take-home keeps things simple but follows scalable patterns:
-
-* **Batch loading**: Python loads CSV in chunks (configurable `batch_size`) and commits per batch.
-* **Set-based SQL**: staging cleanse and dimension/fact loads avoid row-by-row operations.
-* **Staging indexing**: `er.Stg_EMS_Runs` has a unique index on `row_hash` to support de-dupe.
-* **Referential integrity**: facts reference dimensions via foreign keys; unknown members default to 0.
-
----
 
 ## Validation
 
