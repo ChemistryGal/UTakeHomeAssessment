@@ -1,0 +1,10 @@
+# Ignore large data files
+data/*.csv
+*.csv
+
+# Optional: python junk
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
