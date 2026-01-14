@@ -102,34 +102,6 @@ This runs:
 ```bash
 python run_etl.py
 ```
-
-### Option B: Run steps manually
-
-**1) Run Bronze scripts in SSMS**
-Run in order:
-
-* `sql/Bronze/00_CreateDatabase.sql`
-* `sql/Bronze/01_CreateSchema.sql`
-* `sql/Bronze/02_CreateRawTable.sql`
-
-**2) Load the CSV to raw**
-
-```bash
-python load_raw.py
-```
-
-**3) Run Silver scripts in SSMS**
-Run in order:
-
-* `sql/Silver/03_CreateStageTable.sql`
-* `sql/Silver/04_CreateDimTables.sql`
-* `sql/Silver/05_CreateFactTable.sql`
-* `sql/Silver/06_DimUnknownsInserted.sql`
-* `sql/Silver/07_CleanseTransform.sql`
-* `sql/Silver/08_LoadDimensions.sql`
-* `sql/Silver/09_LoadFact.sql`
-* `sql/Silver/10_Validation.sql`
-
 ---
 
 ## Pipeline Overview
