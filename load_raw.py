@@ -53,7 +53,6 @@ def main():
         cur = conn.cursor()
         cur.fast_executemany = True
 
-        # repeatable runs
         cur.execute(f"TRUNCATE TABLE {TABLE}")
         conn.commit()
 
@@ -70,12 +69,10 @@ def main():
         ):
             batch_num += 1
 
-            # Validate schema
             missing = [c for c in EXPECTED_COLS if c not in chunk.columns]
             if missing:
                 raise ValueError(f"CSV is missing expected columns: {missing}")
 
-            # Insert only expected cols in expected order
             chunk = chunk[EXPECTED_COLS].map(norm)
 
             col_list = ", ".join(f"[{c}]" for c in EXPECTED_COLS)

@@ -113,7 +113,6 @@ def main() -> int:
     bronze_dir = repo_root / "sql" / "Bronze"
     silver_dir = repo_root / "sql" / "Silver"
 
-    # Build script paths + validate existence
     bronze_paths = [bronze_dir / f for f in BRONZE_SCRIPTS]
     silver_paths = [silver_dir / f for f in SILVER_SCRIPTS]
 
@@ -123,9 +122,7 @@ def main() -> int:
         for p in missing:
             print(f" - {p}", file=sys.stderr)
         return 2
-
-    # 1) Ensure DB exists by running bronze scripts against master for the create DB step
-    # We'll just execute the bronze scripts using a connection to master first.
+# Bronze phase
     master_conn_str = build_conn_str(cfg, database_override="master")
     print(f"Connecting to SQL Server (master): {cfg['sql']['server']}")
     try:
@@ -136,17 +133,15 @@ def main() -> int:
                 exec_sql_file(conn_master, p)
                 print(f"    done in {time.perf_counter() - t0:.2f}s")
     except Exception as e:
-        print(f"\n❌ Bronze phase failed: {e}", file=sys.stderr)
+        print(f"\n Bronze phase failed: {e}", file=sys.stderr)
         return 1
 
-    # 2) Load raw CSV (Python)
     try:
         run_python_loader(repo_root)
     except Exception as e:
-        print(f"\n❌ CSV load failed: {e}", file=sys.stderr)
+        print(f"\n CSV load failed: {e}", file=sys.stderr)
         return 1
-
-    # 3) Silver scripts against EMSRecords
+#Silver phase
     db_conn_str = build_conn_str(cfg, database_override=cfg["sql"]["database"])
     print(f"\nConnecting to SQL Server (db): {cfg['sql']['server']} | {cfg['sql']['database']}")
     try:
@@ -157,10 +152,10 @@ def main() -> int:
                 exec_sql_file(conn_db, p)
                 print(f"    done in {time.perf_counter() - t0:.2f}s")
 
-        print("\n✅ ETL complete.")
+        print("\n ETL complete.")
         return 0
     except Exception as e:
-        print(f"\n❌ Silver phase failed: {e}", file=sys.stderr)
+        print(f"\n Silver phase failed: {e}", file=sys.stderr)
         return 1
 
 
