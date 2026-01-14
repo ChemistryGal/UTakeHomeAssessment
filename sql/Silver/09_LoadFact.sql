@@ -53,7 +53,7 @@ SELECT
     1
 FROM er.Stg_EMS_Runs s
 LEFT JOIN er.Dim_Date dd_inc  ON dd_inc.date_id  = COALESCE(CONVERT(INT, CONVERT(CHAR(8), CAST(s.incident_dt AS DATE), 112)), 0)
-LEFT JOIN dberer.Dim_Date dd_disp ON dd_disp.date_id = COALESCE(CONVERT(INT, CONVERT(CHAR(8), CAST(s.unit_notified_by_dispatch_dt AS DATE), 112)), 0)
+LEFT JOIN er.Dim_Date dd_disp ON dd_disp.date_id = COALESCE(CONVERT(INT, CONVERT(CHAR(8), CAST(s.unit_notified_by_dispatch_dt AS DATE), 112)), 0)
 LEFT JOIN er.Dim_Date dd_on   ON dd_on.date_id   = COALESCE(CONVERT(INT, CONVERT(CHAR(8), CAST(s.unit_arrived_on_scene_dt AS DATE), 112)), 0)
 LEFT JOIN er.Dim_Date dd_pat  ON dd_pat.date_id  = COALESCE(CONVERT(INT, CONVERT(CHAR(8), CAST(s.unit_arrived_to_patient_dt AS DATE), 112)), 0)
 LEFT JOIN er.Dim_Date dd_left ON dd_left.date_id = COALESCE(CONVERT(INT, CONVERT(CHAR(8), CAST(s.unit_left_scene_dt AS DATE), 112)), 0)

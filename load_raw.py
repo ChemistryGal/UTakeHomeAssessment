@@ -76,7 +76,7 @@ def main():
                 raise ValueError(f"CSV is missing expected columns: {missing}")
 
             # Insert only expected cols in expected order
-            chunk = chunk[EXPECTED_COLS].applymap(norm)
+            chunk = chunk[EXPECTED_COLS].map(norm)
 
             col_list = ", ".join(f"[{c}]" for c in EXPECTED_COLS)
             placeholders = ", ".join("?" for _ in EXPECTED_COLS)

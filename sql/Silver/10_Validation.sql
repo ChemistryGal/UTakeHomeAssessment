@@ -2,7 +2,7 @@ USE EMSRecords;
 GO
 
 -- Row counts
-SELECT 'Raw_EMS_Runs' AS table_name, COUNT(*) AS row_count FROM dbo.Raw_EMS_Runs
+SELECT 'Raw_EMS_Runs' AS table_name, COUNT(*) AS row_count FROM er.Raw_EMS_Runs
 UNION ALL
 SELECT 'Stg_EMS_Runs', COUNT(*) FROM er.Stg_EMS_Runs
 UNION ALL
